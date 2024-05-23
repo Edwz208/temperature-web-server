@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href='https://fonts.googleapis.com/css?family=Radio Canada Big' rel='stylesheet'>
+    <link rel="icon" type="image/png" href="tempfav.png"    sizes="64x64" >
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TempCheck</title>
+    <style>
+        body {
+            font-family: "Radio Canada Big";
+            margin: 0;
+            padding: 20px;
+            background-color: #eaead2;
+        }
+        .container {
+            max-width: 80vh;
+            max-height: 40vh;
+            height: 100px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-color: black;
+            border: 2px solid;
+        }
+        h1 {
+            text-align: center;
+        }
+        .reading {
+            margin-bottom: 10px;
+
+        }
+        .temperature {
+            color: #e74c3c;
+            word-spacing: 30px;
+        }
+
+        .time {
+            text-align: center;
+            margin-top: -3.25vh;
+            margin-left: 60%;
+        }
+        .graphcontainer {
+            max-width: 110vh;
+            height: 79.23930269413628vh;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 5%;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-color: rgb(0, 0, 0);
+            border: 1.5px solid;
+            margin-top: 20%;
+        }
+
+        .graphtitle {
+            font-size: 34px;
+            color: #151414;
+            border-bottom: #151414 2px solid;
+            margin-top: 36.5vh;
+        }
+
+       
+
+
+        
+    </style>
+</head>
+<body>
+    <div class="container" id="container">
+        <h1>Temperature Readings</h1>
+        <div class="reading">
+            <strong>Current Temperature:</strong>
+            <span class="temperature">{temperature}°C    {humidity}%</span>
+        </div>
+        <div class="time">
+            <strong>Time:</strong>
+            <span>{time}</span>
+        </div>
+    
+    <div class="graphcontainer" id="graphcontainer">
+    </div>
+
+    <h1 class = "graphtitle">Temperature vs Time Graph</h1>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Get the graphcontainer div
+            var graphContainer = document.getElementById('graphcontainer');
+
+            // Get the container div
+            var container = document.getElementById('container');
+
+            // Append the graphContainer to the body (moving it out of the container)
+            document.body.appendChild(graphContainer);
+        });
+    </script>
+</body>
+</html>
