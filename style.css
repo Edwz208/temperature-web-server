@@ -1,51 +1,67 @@
+html, body {
+    height: 110%;
+    width: 100%;
+    margin: 0;
+    padding: 0; /* Ensure no extra spacing */
+    box-sizing: border-box; /* Include padding and border in element's total width and height */
+  }
+  
 body {
-  font-family: "Radio Canada Big";
-  margin: 0;
-  padding: 20px;
-  background-color: #eaead2;
-}
-.container {
+    font-family: "Radio Canada Big";
+    background-color: #eaead2;
+    padding: 20px;
+    
+  }
+
+*, *::before, *::after {
+    box-sizing: inherit;
+  }
+
+  h1, .graphtitle {
+    text-align: center;
+    font-size: 34px;
+    color: #151414;
+  }
+
+  .container, .graphcontainer {
+    max-width: 80vh;
+    width: 100%; 
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px; 
+  }
+
+  .container {
+    height: 16.5vh;
+    border: 2px solid black; 
+    margin: 0 auto; 
+  }
+  .graphcontainer{
+    border: 1.5px solid rgb(0, 0, 0);
+    height: 70vh;
+    
+  }
+  .graphtitle {
+  border-bottom: 2px solid #151414;
+  margin-top: 10.5vh;
   max-width: 80vh;
-  max-height: 40vh;
-  height: 100px;
-  margin: 0 auto;
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  border-color: black;
-  border: 2px solid;
-}
-h1 {
-  text-align: center;
-}
-.graphcontainer {
-  max-width: 110vh;
-  height: 79.23930269413628vh;
-  margin: 0 auto;
-  background-color: #fff;
-  padding: 5%;
-  border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  border-color: rgb(0, 0, 0);
-  border: 1.5px solid;
-  margin-top: 20%;
-}
-.graphtitle {
-  font-size: 34px;
-  color: #151414;
-  border-bottom: #151414 2px solid;
-  margin-top: 36.5vh;
-}
-.reading {
-  display: flex;
-  justify-content:space-around;
-}
-#humidityreading,#temperaturereading,#time{
-  color: red; 
-  margin-right: 4.5vh;
+  width: 100%;
   
 }
-.temperature{
-  margin-left: 4.5vh;
+ .graphcontainer, .graphtitle{
+    margin-left: 15vh;
+ }
+
+.reading {
+  display: flex;
+  justify-content: space-around;
+}
+
+#humidityreading, #temperaturereading, #time {
+  color: red;
+}
+
+.temperature, .humidity, .time {
+  margin: 0 4.5vh;
 }
