@@ -20,7 +20,7 @@ float temperature = 0;
 float humidity = 0;
 
 unsigned long previousMillis = 0;
-const long interval = 200;
+const long interval = 1500;
 
 void setup() {
   Serial.begin(115200);
@@ -49,7 +49,7 @@ void setup() {
 
 void loop() {
   server.handleClient();
-  
+
   unsigned long currentMillis = millis();
   if (currentMillis - previousMillis >= interval) {
     previousMillis = currentMillis;
@@ -67,7 +67,7 @@ void loop() {
 
 void connectToWifi() {
   WiFi.begin(ssid, password);
-  
+
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
@@ -92,13 +92,13 @@ void beginServer() {
     struct tm timeinfo;
     char timeStr[20];
     if (getLocalTime(&timeinfo)) {
-      strftime(timeStr, sizeof(timeStr), "%H:%M:%S", &timeinfo); 
+      strftime(timeStr, sizeof(timeStr), "%H:%M:%S", &timeinfo);
     } else {
       strcpy(timeStr, "00:00:00");
     }
     handleData(timeStr);
   });
-  
+
   server.onNotFound([]() {
     server.send(404, "text/plain", "File Not Found");
   });
@@ -117,9 +117,11 @@ void serveFile(String path, String contentType) {
   }
 }
 
-void handleData(String timeStr) { // Handle data and send JSON response
+void handleData(String timeStr) { 
   String json;
   StaticJsonDocument<200> doc;
+  getTemperature(); // Update temperature
+  getHumidity();    // Update humidity
   doc["temperature"] = temperature;
   doc["humidity"] = humidity;
   doc["time"] = timeStr;
