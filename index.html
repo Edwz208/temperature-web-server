@@ -1,35 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <link
-      href="https://fonts.googleapis.com/css?family=Radio Canada Big"
-      rel="stylesheet"
-    />
-    <link rel="icon" type="image/png" href="tempfav.png" sizes="64x64" />
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TempCheck</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  </head>
-  <body>
-    <div class="container" id="container">
-      <h1>Temperature Readings</h1>
-      <div class="reading">
-        <div class = "temperature">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TempCheck</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+</head>
+<body>
+  <div class="container" id="container">
+    <h1>Temperature Readings</h1>
+    <div class="reading">
+      <div class="temperature">
         <strong>Current Temperature:</strong>
-        <span id="temperaturereading">0°C</span></div>
-        <div class = "humidity">
+        <span id="temperaturereading">0°C</span>
+      </div>
+      <div class="humidity">
         <span><strong>Humidity:</strong></span>
-        <span id="humidityreading">0%</span></div>
+        <span id="humidityreading">0%</span>
+      </div>
       <div class="time">
         <strong>Time:</strong>
         <span id="time">00:00:00</span>
       </div>
-    </div></div>
-    <h1 class="graphtitle">Temperature vs Time Graph</h1>
-    <canvas class="graphcontainer" id="temperatureChart">
-    </canvas>
-  </body>
+    </div>
+  </div>
+  <h1 class="graphtitle">Temperature vs Time Graph</h1>
+  <canvas class="graphcontainer" id="temperatureChart"></canvas>
+  <script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+      var ctx = document.getElementById('temperatureChart').getContext('2d');
+      var temperatureChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [{
+            label: 'Temperature (°C)',
+            data: [],
+            fill: false,
+            borderColor: 'rgb(0, 0, 0)',
+            tension: 0.1
+          }]
+        },
+        options: {
+          scales: {
+            x: {
+              type: 'time',
+              time: {
+                unit: 'second'
+              }
+            },
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+
+      function fetchData() {
+        fetch('/data')
+          .then(response => response.json())
+          .then(data => {
+            document.getElementById('temperaturereading').textContent = data.temperature + '°C';
+            document.getElementById('humidityreading').textContent = data.humidity + '%';
+            document.getElementById('time').textContent = data.time;
+
+            temperatureChart.data.labels.push(data.time);
+            temperatureChart.data.datasets[0].data.push(data.temperature);
+
+            const maxDataPoints = 10;
+            if (temperatureChart.data.labels.length > maxDataPoints) {
+              temperatureChart.data.labels.shift();
+              temperatureChart.data.datasets[0].data.shift();
+            }
+
+            temperatureChart.update();
+          })
+          .catch(error => console.error('Error fetching data:', error));
+      }
+
+      setInterval(fetchData, 1000);
+    });
+  </script>
+</body>
 </html>
