@@ -82,8 +82,8 @@ void beginServer() {
   server.on("/", HTTP_GET, []() {
     serveFile("/index.html", "text/html");
   });
-  server.on("/styles.css", HTTP_GET, []() {
-    serveFile("/styles.css", "text/css");
+  server.on("/style.css", HTTP_GET, []() {
+    serveFile("/style.css", "text/css");
   });
   server.on("/script.js", HTTP_GET, []() {
     serveFile("/script.js", "application/javascript");
