@@ -1,3 +1,4 @@
+
 #include <WiFi.h>
 #include <WiFiClient.h>
 #include <WebServer.h>
@@ -13,20 +14,20 @@
 DHT dht(dhtPin, DHTTYPE);
 WebServer server(80);
 
-const char* ssid = "";
-const char* password = "";
+const char* ssid = "Health2020";  // Your SSID
+const char* password = "Rexdale2020";  // Your Password
 
 float temperature = 0;
 float humidity = 0;
 
 unsigned long previousMillis = 0;
-const long interval = 1500;
+const long interval = 5000;  // Update interval set to 6 seconds
 
 void setup() {
   Serial.begin(115200);
   dht.begin();
   pinMode(dhtPin, INPUT_PULLUP);
-  pinMode(26, OUTPUT); // Initialize LED pin
+  pinMode(26, OUTPUT);  // Initialize LED pin
 
   if (!SPIFFS.begin(true)) {
     Serial.println("Error with SPIFFS");
@@ -59,8 +60,9 @@ void loop() {
     char timeStr[20];
     if (getLocalTime(&timeinfo)) {
       strftime(timeStr, sizeof(timeStr), "%H:%M:%S", &timeinfo);
+      handleData(String(timeStr));  // Update and send data on interval
     } else {
-      strcpy(timeStr, "00:00:00");
+      handleData("00:00:00");
     }
   }
 }
@@ -88,7 +90,7 @@ void beginServer() {
   server.on("/script.js", HTTP_GET, []() {
     serveFile("/script.js", "application/javascript");
   });
-  server.on("/data", HTTP_GET, []() { // Handle data request
+  server.on("/data", HTTP_GET, []() {  // Handle data request
     struct tm timeinfo;
     char timeStr[20];
     if (getLocalTime(&timeinfo)) {
@@ -117,11 +119,11 @@ void serveFile(String path, String contentType) {
   }
 }
 
-void handleData(String timeStr) { 
+void handleData(String timeStr) {
   String json;
   StaticJsonDocument<200> doc;
-  getTemperature(); // Update temperature
-  getHumidity();    // Update humidity
+  getTemperature();  // Update temperature
+  getHumidity();     // Update humidity
   doc["temperature"] = temperature;
   doc["humidity"] = humidity;
   doc["time"] = timeStr;
