@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+  <link href='https://fonts.googleapis.com/css?family=Radio Canada Big' rel='stylesheet'>
 </head>
 <body>
   <div class="container" id="container">
@@ -30,58 +31,70 @@
   <canvas class="graphcontainer" id="temperatureChart"></canvas>
   <script>
     document.addEventListener('DOMContentLoaded', (event) => {
-      var ctx = document.getElementById('temperatureChart').getContext('2d');
-      var temperatureChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: [],
-          datasets: [{
-            label: 'Temperature (°C)',
-            data: [],
-            fill: false,
-            borderColor: 'rgb(0, 0, 0)',
-            tension: 0.1
-          }]
-        },
-        options: {
-          scales: {
-            x: {
-              type: 'time',
-              time: {
-                unit: 'second'
-              }
-            },
-            y: {
-              beginAtZero: true
-            }
+  var ctx = document.getElementById('temperatureChart').getContext('2d');
+  var temperatureChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [{
+        label: 'Temperature (°C)',
+        data: [],
+        fill: false,
+        borderColor: 'rgb(0, 0, 0)',
+        tension: 0.1
+      }]
+    },
+    options: {
+      scales: {
+        x: {
+          type: 'time',
+          time: {
+            unit: 'second'
           }
+        },
+        y: {
+          beginAtZero: true
         }
-      });
-
-      function fetchData() {
-        fetch('/data')
-          .then(response => response.json())
-          .then(data => {
-            document.getElementById('temperaturereading').textContent = data.temperature + '°C';
-            document.getElementById('humidityreading').textContent = data.humidity + '%';
-            document.getElementById('time').textContent = data.time;
-
-            temperatureChart.data.labels.push(data.time);
-            temperatureChart.data.datasets[0].data.push(data.temperature);
-
-            const maxDataPoints = 10;
-            if (temperatureChart.data.labels.length > maxDataPoints) {
-              temperatureChart.data.labels.shift();
-              temperatureChart.data.datasets[0].data.shift();
-            }
-
-            temperatureChart.update();
-          })
-          .catch(error => console.error('Error fetching data:', error));
       }
+    }
+  });
 
-      setInterval(fetchData, 1000);
-    });
+  const maxDataPoints = 10; // 3 hours of data points at 1 point every 6 seconds
+  let dataBuffer = [];
+
+  function fetchData() {
+    fetch('/data')
+      .then(response => response.json())
+      .then(data => {
+        console.log("Data fetched:", data); // Debug output
+        document.getElementById('temperaturereading').textContent = data.temperature + '°C';
+        document.getElementById('humidityreading').textContent = data.humidity + '%';
+        document.getElementById('time').textContent = data.time;
+
+        // Convert time data to JavaScript Date object
+        const timeParts = data.time.split(':');
+        const time = new Date();
+        time.setHours(parseInt(timeParts[0]));
+        time.setMinutes(parseInt(timeParts[1]));
+        time.setSeconds(parseInt(timeParts[2]));
+
+        dataBuffer.push({ time: time, temperature: data.temperature });
+
+        if (dataBuffer.length > maxDataPoints) {
+          dataBuffer.shift(); // Remove the oldest data point
+        }
+
+        temperatureChart.data.labels = dataBuffer.map(d => d.time);
+        temperatureChart.data.datasets[0].data = dataBuffer.map(d => d.temperature);
+
+        temperatureChart.update();
+      })
+      .catch(error => console.error('Error fetching data:', error));
+  }
+
+  setInterval(fetchData,5000); // Match the interval to your Arduino update frequency
+});
+
   </script>
 </body>
 </html>
