@@ -21,6 +21,7 @@
         <span><strong>Humidity:</strong></span>
         <span id="humidityreading">0%</span>
       </div>
+      <p class = "avgTemp" id = "avgTemperatureReading">0°C</p>
       <div class="time">
         <strong>Time:</strong>
         <span id="time">00:00:00</span>
@@ -31,82 +32,139 @@
   <div class="avgTmp">Average Temperature:  </div>
   <div class="hide">Average of 15 temperature Readings.</div>
 
-  <input class="inputBox" type="text" id="thresBox"  placeholder="(Enter A Temperature Threshold)"/>
+  <input class="inputBox" type="text" id="thresBox"  placeholder="Enter A Temperature Threshold"/>
   
   
   <div class="avgHmd">Average Humidity:  </div>
   <div class="hide2">Average of 15 humidity Readings.</div>
   <canvas class="graphcontainer" id="temperatureChart"></canvas>
+  <canvas class="graphcontainer" id="humidityChart" style="display: none;"></canvas>
   <div class = "b" >
-    <button  class = tempB onclick="toggleGraph('temperature')">Temperature</button>
-    <button class = humidB onclick="toggleGraph('humidity')">Humidity</button>
+    <button  class = tempB onclick="toggleChart('temperature')">Temperature</button>
+    <button class = humidB onclick="toggleChart('humidity')">Humidity</button>
   </div>
   <script>
+    let temperatureChart, humidityChart;
+    let currentChart = 'temperature';
+  
     document.addEventListener('DOMContentLoaded', (event) => {
-  var ctx = document.getElementById('temperatureChart').getContext('2d');
-  var temperatureChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: [],
-      datasets: [{
-        label: 'Temperature (°C)',
-        data: [],
-        fill: false,
-        borderColor: 'rgb(255, 0, 0)',
-        tension: 0.1
-      }]
-    },
-    options: {
-      scales: {
-        x: {
-          type: 'time',
-          time: {
-            unit: 'second'
-          }
+      initializeCharts(); // Initialize both temperature and humidity charts
+      fetchData(); // Fetch initial data
+      setInterval(fetchData, 2000); // Match the interval to your Arduino update frequency
+    });
+  
+    function initializeCharts() {
+      // Initialize temperature chart
+      var ctxTemp = document.getElementById('temperatureChart').getContext('2d');
+      temperatureChart = new Chart(ctxTemp, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [{
+            label: 'Temperature (°C)',
+            data: [],
+            fill: false,
+            borderColor: 'rgb(255, 0, 0)',
+            tension: 0.1
+          }]
         },
-        y: {
-          beginAtZero: true
+        options: {
+          scales: {
+            x: {
+              type: 'time',
+              time: {
+                unit: 'second'
+              }
+            },
+            y: {
+              beginAtZero: true
+            }
+          }
         }
-      }
+      });
+  
+      // Initialize humidity chart
+      var ctxHumidity = document.getElementById('humidityChart').getContext('2d');
+      humidityChart = new Chart(ctxHumidity, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [{
+            label: 'Humidity (%)',
+            data: [],
+            fill: false,
+            borderColor: 'rgb(0, 0, 255)',
+            tension: 0.1
+          }]
+        },
+        options: {
+          scales: {
+            x: {
+              type: 'time',
+              time: {
+                unit: 'second'
+              }
+            },
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
     }
-  });
-
-  const maxDataPoints = 4; // 3 hours of data points at 1 point every 6 seconds
-  let dataBuffer = [];
-
-  function fetchData() {
-    fetch('/data')
-      .then(response => response.json())
-      .then(data => {
-        console.log("Data fetched:", data); // Debug output
-        document.getElementById('temperaturereading').textContent = data.temperature + '°C';
-        document.getElementById('humidityreading').textContent = data.humidity + '%';
-        document.getElementById('time').textContent = data.time;
-
-        // Convert time data to JavaScript Date object
-        const timeParts = data.time.split(':');
-        const time = new Date();
-        time.setHours(parseInt(timeParts[0]));
-        time.setMinutes(parseInt(timeParts[1]));
-        time.setSeconds(parseInt(timeParts[2]));
-
-        dataBuffer.push({ time: time, temperature: data.temperature });
-
-        if (dataBuffer.length > maxDataPoints) {
-          dataBuffer.shift(); // Remove the oldest data point
-        }
-
-        temperatureChart.data.labels = dataBuffer.map(d => d.time);
-        temperatureChart.data.datasets[0].data = dataBuffer.map(d => d.temperature);
-
-        temperatureChart.update();
-      })
-      .catch(error => console.error('Error fetching data:', error));
-  }
-
-  setInterval(fetchData,2000); // Match the interval to your Arduino update frequency
-});
-
+  
+    function fetchData() {
+      fetch('/data')
+        .then(response => response.json())
+        .then(data => {
+          console.log("Data fetched:", data); // Debug output
+          document.getElementById('temperaturereading').textContent = data.temperature + '°C';
+          document.getElementById('humidityreading').textContent = data.humidity + '%';
+          document.getElementById('time').textContent = data.time;
+  
+          // Convert time data to JavaScript Date object
+          const timeParts = data.time.split(':');
+          const time = new Date();
+          time.setHours(parseInt(timeParts[0]));
+          time.setMinutes(parseInt(timeParts[1]));
+          time.setSeconds(parseInt(timeParts[2]));
+  
+          if (currentChart === 'temperature') {
+            updateChart(temperatureChart, time, data.temperature);
+          } else {
+            updateChart(humidityChart, time, data.humidity);
+          }
+        })
+        .catch(error => console.error('Error fetching data:', error));
+    }
+  
+    function updateChart(chart, time, value) {
+      const dataset = chart.data.datasets[0];
+      dataset.data.push({ x: time, y: value });
+  
+      // Ensure maximum data points
+      if (dataset.data.length > 10) {
+        dataset.data.shift(); // Remove the oldest data point
+      }
+  
+      chart.update();
+    }
+  
+    function toggleChart(type) {
+      if (type === currentChart) return;
+  
+      if (type === 'temperature') {
+        document.getElementById('temperatureChart').style.display = 'block';
+        document.getElementById('humidityChart').style.display = 'none';
+      } else if (type === 'humidity') {
+        document.getElementById('temperatureChart').style.display = 'none';
+        document.getElementById('humidityChart').style.display = 'block';
+      }
+  
+      currentChart = type;
+    }
   </script>
+  
+  
 </body>
 </html>
