@@ -1,6 +1,4 @@
-
 #include <WiFi.h>
-#include <WiFiClient.h>
 #include <WebServer.h>
 #include <DHT.h>
 #include <FS.h>
@@ -14,20 +12,29 @@
 DHT dht(dhtPin, DHTTYPE);
 WebServer server(80);
 
-const char* ssid = "Health2020";  // Your SSID
-const char* password = "Rexdale2020";  // Your Password
+const char* ssid = "";
+const char* password = "";
 
 float temperature = 0;
 float humidity = 0;
 
 unsigned long previousMillis = 0;
-const long interval = 5000;  // Update interval set to 6 seconds
+const long interval = 5000;
+
+struct Reading {
+  float temperature;
+  float humidity;
+};
+
+Reading readings[50]; 
+int currentIndex = 0; 
+int readingsCount = 0; 
 
 void setup() {
   Serial.begin(115200);
   dht.begin();
   pinMode(dhtPin, INPUT_PULLUP);
-  pinMode(26, OUTPUT);  // Initialize LED pin
+  pinMode(26, OUTPUT);
 
   if (!SPIFFS.begin(true)) {
     Serial.println("Error with SPIFFS");
@@ -60,7 +67,7 @@ void loop() {
     char timeStr[20];
     if (getLocalTime(&timeinfo)) {
       strftime(timeStr, sizeof(timeStr), "%H:%M:%S", &timeinfo);
-      handleData(String(timeStr));  // Update and send data on interval
+      handleData(String(timeStr));
     } else {
       handleData("00:00:00");
     }
@@ -90,7 +97,7 @@ void beginServer() {
   server.on("/script.js", HTTP_GET, []() {
     serveFile("/script.js", "application/javascript");
   });
-  server.on("/data", HTTP_GET, []() {  // Handle data request
+  server.on("/data", HTTP_GET, []() {
     struct tm timeinfo;
     char timeStr[20];
     if (getLocalTime(&timeinfo)) {
@@ -101,12 +108,17 @@ void beginServer() {
     handleData(timeStr);
   });
 
+  server.on("/ding.mp3", HTTP_GET, []() {
+    serveFile("/ding.mp3", "audio/mpeg");
+  });
+
   server.onNotFound([]() {
     server.send(404, "text/plain", "File Not Found");
   });
 
   server.begin();
   Serial.println("HTTP server started");
+  
 }
 
 void serveFile(String path, String contentType) {
@@ -120,16 +132,34 @@ void serveFile(String path, String contentType) {
 }
 
 void handleData(String timeStr) {
+  float avgTemperature = 0;
+  float avgHumidity = 0;
+  int validReadings = 0; 
+
+  for (int i = 0; i < readingsCount; i++) {
+    if (!isnan(readings[i].temperature) && !isnan(readings[i].humidity)) {
+      avgTemperature += readings[i].temperature;
+      avgHumidity += readings[i].humidity;
+      validReadings++;
+    }
+  }
+
+  if (validReadings > 0) {
+    avgTemperature /= validReadings;
+    avgHumidity /= validReadings;
+  }
+
   String json;
   StaticJsonDocument<200> doc;
-  getTemperature();  // Update temperature
-  getHumidity();     // Update humidity
+  doc["avgTemp"] = avgTemperature;
+  doc["avgHum"] = avgHumidity;
+  doc["time"] = timeStr;
   doc["temperature"] = temperature;
   doc["humidity"] = humidity;
-  doc["time"] = timeStr;
   serializeJson(doc, json);
 
   server.send(200, "application/json", json);
+  
 }
 
 void getTemperature() {
@@ -141,6 +171,8 @@ void getTemperature() {
     Serial.print("Temperature: ");
     Serial.print(temperature);
     Serial.println(" °C");
+    
+    storeReading(temperature, humidity);
   }
 }
 
@@ -153,5 +185,15 @@ void getHumidity() {
     Serial.print("Humidity: ");
     Serial.print(humidity);
     Serial.println(" %");
+  }
+}
+
+void storeReading(float temp, float hum) {
+  readings[currentIndex].temperature = temp;
+  readings[currentIndex].humidity = hum;
+
+  currentIndex = (currentIndex + 1) % 50; 
+  if (readingsCount < 50) {
+    readingsCount++; 
   }
 }
