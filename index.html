@@ -15,13 +15,12 @@
     <div class="reading">
       <div class="temperature">
         <strong>Current Temperature:</strong>
-        <span id="temperaturereading">0°C</span>
+        <span id="temperaturereading">00.00°C</span>
       </div>
       <div class="humidity">
         <span><strong>Humidity:</strong></span>
-        <span id="humidityreading">0%</span>
+        <span id="humidityreading">00%</span>
       </div>
-      <p class = "avgTemp" id = "avgTemperatureReading">0°C</p>
       <div class="time">
         <strong>Time:</strong>
         <span id="time">00:00:00</span>
@@ -30,31 +29,48 @@
   </div>
   <h1 class="graphtitle">Temperature vs Time Graph</h1>
   <div class="avgTmp">Average Temperature:  </div>
-  <div class="hide">Average of 15 temperature Readings.</div>
-
-  <input class="inputBox" type="text" id="thresBox"  placeholder="Enter A Temperature Threshold"/>
-  
-  
+  <div class="hide">Average of 50 temperature Readings.</div>
+  <p class="avgTemp" id="avgTemperatureReading">00.00°C</p>
   <div class="avgHmd">Average Humidity:  </div>
-  <div class="hide2">Average of 15 humidity Readings.</div>
+  <div class="hide2">Average of 50 humidity Readings.</div>
+  <p class = "avgHmd" id = "avgHumidityReading">00%</p>
+  <h3 id="thresholdnotifs">Set Thresholds For Notifications</h3>
+  <div class="threshold-input">
+    <label for="minthreshold">Minimum Temperature (°C):</label>
+    <input type="range" id="minthreshold" min="-25" max="45" step="0.1">
+    <input type="number" id="minNumber" step="0.1">
+    <label for="maxthreshold">Maximum Temperature (°C):</label>
+    <input type="range" id="maxthreshold" min="-20" max="50" step="0.1">
+    <input type="number" id="maxNumber" step="0.1">
+    <button id="setThreshold">Set Threshold</button>
+  </div>
+
   <canvas class="graphcontainer" id="temperatureChart"></canvas>
   <canvas class="graphcontainer" id="humidityChart" style="display: none;"></canvas>
-  <div class = "b" >
-    <button  class = tempB onclick="toggleChart('temperature')">Temperature</button>
-    <button class = humidB onclick="toggleChart('humidity')">Humidity</button>
+  <div class="b">
+    <button class="tempB" onclick="toggleChart('temperature')">Temperature</button>
+    <button class="humidB" onclick="toggleChart('humidity')">Humidity</button>
   </div>
+
+  <audio id="audioClip" style="display: none;">
+    <source src="ding.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+
   <script>
     let temperatureChart, humidityChart;
     let currentChart = 'temperature';
-  
+    let minThreshold = -25; 
+    let maxThreshold = 50; 
+    let audioEnabled = false; 
+
     document.addEventListener('DOMContentLoaded', (event) => {
-      initializeCharts(); // Initialize both temperature and humidity charts
-      fetchData(); // Fetch initial data
-      setInterval(fetchData, 2000); // Match the interval to your Arduino update frequency
+      initializeCharts(); 
+      fetchData(); 
+      setInterval(fetchData, 2000); 
     });
-  
+
     function initializeCharts() {
-      // Initialize temperature chart
       var ctxTemp = document.getElementById('temperatureChart').getContext('2d');
       temperatureChart = new Chart(ctxTemp, {
         type: 'line',
@@ -82,8 +98,7 @@
           }
         }
       });
-  
-      // Initialize humidity chart
+
       var ctxHumidity = document.getElementById('humidityChart').getContext('2d');
       humidityChart = new Chart(ctxHumidity, {
         type: 'line',
@@ -112,47 +127,57 @@
         }
       });
     }
-  
+
     function fetchData() {
       fetch('/data')
         .then(response => response.json())
         .then(data => {
           console.log("Data fetched:", data); // Debug output
-          document.getElementById('temperaturereading').textContent = data.temperature + '°C';
+          let roundedTemp = parseFloat(data.temperature).toFixed(2);
+          let roundedAvgHum = parseFloat(data.avgHum).toFixed(2);
+          let roundedAvgTemp = parseFloat(data.avgTemp).toFixed(2);
+          document.getElementById('temperaturereading').textContent = roundedTemp + '°C';
           document.getElementById('humidityreading').textContent = data.humidity + '%';
+          document.getElementById('avgTemperatureReading').textContent = roundedAvgTemp + '°C';
+          document.getElementById('avgHumidityReading').textContent = roundedAvgHum + '%';
           document.getElementById('time').textContent = data.time;
-  
-          // Convert time data to JavaScript Date object
+          if (roundedTemp > maxThreshold || roundedTemp < minThreshold) {
+            alert('Temperature threshold exceeded!');
+            if (audioEnabled) {
+              console.log("Audio playing...");
+              document.getElementById('audioClip').play();
+            }
+          }
+
           const timeParts = data.time.split(':');
           const time = new Date();
           time.setHours(parseInt(timeParts[0]));
           time.setMinutes(parseInt(timeParts[1]));
           time.setSeconds(parseInt(timeParts[2]));
-  
+
           if (currentChart === 'temperature') {
-            updateChart(temperatureChart, time, data.temperature);
+            updateChart(temperatureChart, time, roundedTemp);
           } else {
             updateChart(humidityChart, time, data.humidity);
           }
         })
         .catch(error => console.error('Error fetching data:', error));
     }
-  
+
     function updateChart(chart, time, value) {
       const dataset = chart.data.datasets[0];
       dataset.data.push({ x: time, y: value });
-  
-      // Ensure maximum data points
+
       if (dataset.data.length > 10) {
-        dataset.data.shift(); // Remove the oldest data point
+        dataset.data.shift(); 
       }
-  
+
       chart.update();
     }
-  
+
     function toggleChart(type) {
       if (type === currentChart) return;
-  
+
       if (type === 'temperature') {
         document.getElementById('temperatureChart').style.display = 'block';
         document.getElementById('humidityChart').style.display = 'none';
@@ -160,11 +185,76 @@
         document.getElementById('temperatureChart').style.display = 'none';
         document.getElementById('humidityChart').style.display = 'block';
       }
-  
+
       currentChart = type;
     }
+
+    let minValueInput = document.getElementById('minthreshold');
+    let maxValueInput = document.getElementById('maxthreshold');
+    let minNumberInput = document.getElementById('minNumber');
+    let maxNumberInput = document.getElementById('maxNumber');
+    let minValue, maxValue;
+
+    function thresholdStuff() {
+      minValueInput.addEventListener('input', () => {
+        minValue = parseFloat(minValueInput.value);
+        maxValue = parseFloat(maxValueInput.value);
+        if (minValue >= maxValue) {
+          maxValue = (minValue + 0.1).toFixed(1);
+        }
+        maxValueInput.value = maxValue;
+        minNumberInput.value = minValue;
+        maxNumberInput.value = maxValue;
+      });
+
+      maxValueInput.addEventListener('input', () => {
+        minValue = parseFloat(minValueInput.value);
+        maxValue = parseFloat(maxValueInput.value);
+        if (minValue >= maxValue) {
+          minValue = (maxValue - 0.1).toFixed(1);
+        }
+        minValueInput.value = minValue;
+        minNumberInput.value = minValue;
+        maxNumberInput.value = maxValue;
+      });
+
+      minNumberInput.addEventListener('input', () => {
+        minValue = parseFloat(minNumberInput.value);
+        if (minValue >= maxValue) {
+          maxValue = (minValue + 0.1).toFixed(1);
+        }
+        minValueInput.value = minValue;
+        maxValueInput.value = maxValue;
+        maxNumberInput.value = maxValue;
+      });
+
+      maxNumberInput.addEventListener('input', () => {
+        maxValue = parseFloat(maxNumberInput.value);
+        if (maxValue <= minValue) {
+          minValue = (maxValue - 0.1).toFixed(1);
+        }
+        maxValueInput.value = maxValue;
+        minValueInput.value = minValue;
+        minNumberInput.value = minValue;
+      });
+
+      document.getElementById('setThreshold').addEventListener('click', () => {
+        minThreshold = parseFloat(document.getElementById('minthreshold').value);
+        maxThreshold = parseFloat(document.getElementById('maxthreshold').value);
+        audioEnabled = true; 
+        playAudio(); 
+        alert('Thresholds set successfully! Audio alerts are now enabled.');
+      });
+    }
+
+    function playAudio() {
+      if (audioEnabled) {
+        document.getElementById('audioClip').play();
+      }
+    }
+
+    thresholdStuff();
   </script>
-  
-  
 </body>
 </html>
+
