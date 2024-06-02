@@ -2,7 +2,7 @@
 Temperature web server project
 
 download and use arduino legacy
-Place the html, css, and js file in a folder called data
+Place the ding, html, css, and js file in a folder called data
 Place the data folder into the sketch folder where the ino file is located, within Documents/Arduino/temperaturewebserverfolder
 
 https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json place this under the legacy preferences, this is for selecting an esp board 
