@@ -37,11 +37,13 @@
   <h3 id="thresholdnotifs">Set Thresholds For Notifications</h3>
   <div class="threshold-input">
     <label for="minthreshold">Minimum Temperature (°C):</label>
-    <input type="range" id="minthreshold" min="-25" max="45" step="0.1">
+    <input type="range" id="minthreshold" min="-25" max="49.9" step="0.1">
     <input type="number" id="minNumber" step="0.1">
+    <!-- <span id = minSymbol>%</span> -->
     <label for="maxthreshold">Maximum Temperature (°C):</label>
-    <input type="range" id="maxthreshold" min="-20" max="50" step="0.1">
-    <input type="number" id="maxNumber" step="0.1">
+    <input type="range" id="maxthreshold" min="-24.9" max="50" step="0.1">
+    <input type="number" id="maxNumber" step="0.1">   
+    <!-- <span id = "maxSymbol">C</span> -->
     <button id="setThreshold">Set Threshold</button>
   </div>
 
@@ -60,8 +62,8 @@
   <script>
     let temperatureChart, humidityChart;
     let currentChart = 'temperature';
-    let minThreshold = -25; 
-    let maxThreshold = 50; 
+    let minThreshold = -25.0; 
+    let maxThreshold = 50.0; 
     let audioEnabled = false; 
 
     document.addEventListener('DOMContentLoaded', (event) => {
@@ -193,59 +195,63 @@
     let maxValueInput = document.getElementById('maxthreshold');
     let minNumberInput = document.getElementById('minNumber');
     let maxNumberInput = document.getElementById('maxNumber');
-    let minValue, maxValue;
+    let minValue = -25; let maxValue = 50;
+    minValueInput.value = minValue;
+    maxValueInput.value = maxValue;
+    maxNumberInput.value = maxValue;
+    minNumberInput.value = minValue;
 
-    function thresholdStuff() {
-      minValueInput.addEventListener('input', () => {
-        minValue = parseFloat(minValueInput.value);
-        maxValue = parseFloat(maxValueInput.value);
-        if (minValue >= maxValue) {
-          maxValue = (minValue + 0.1).toFixed(1);
-        }
-        maxValueInput.value = maxValue;
-        minNumberInput.value = minValue;
-        maxNumberInput.value = maxValue;
-      });
-
-      maxValueInput.addEventListener('input', () => {
-        minValue = parseFloat(minValueInput.value);
-        maxValue = parseFloat(maxValueInput.value);
-        if (minValue >= maxValue) {
-          minValue = (maxValue - 0.1).toFixed(1);
-        }
-        minValueInput.value = minValue;
-        minNumberInput.value = minValue;
-        maxNumberInput.value = maxValue;
-      });
-
-      minNumberInput.addEventListener('input', () => {
-        minValue = parseFloat(minNumberInput.value);
-        if (minValue >= maxValue) {
-          maxValue = (minValue + 0.1).toFixed(1);
-        }
-        minValueInput.value = minValue;
-        maxValueInput.value = maxValue;
-        maxNumberInput.value = maxValue;
-      });
-
-      maxNumberInput.addEventListener('input', () => {
-        maxValue = parseFloat(maxNumberInput.value);
-        if (maxValue <= minValue) {
-          minValue = (maxValue - 0.1).toFixed(1);
-        }
-        maxValueInput.value = maxValue;
-        minValueInput.value = minValue;
-        minNumberInput.value = minValue;
-      });
-
-      document.getElementById('setThreshold').addEventListener('click', () => {
-        minThreshold = parseFloat(document.getElementById('minthreshold').value);
-        maxThreshold = parseFloat(document.getElementById('maxthreshold').value);
-        audioEnabled = true; 
-        playAudio(); 
-        alert('Thresholds set successfully! Audio alerts are now enabled.');
-      });
+  function thresholdStuff() {
+    minValueInput.addEventListener('input', () => {
+    minValue = parseFloat(minValueInput.value);
+    maxValue = parseFloat(maxValueInput.value);
+    if (minValue >= maxValue) {
+      minValue = maxValue - 0.1;
     }
+    minValue = Math.max(minValueInput.min, Math.min(minValue, minValueInput.max));
+    minValueInput.value = minValue.toFixed(1);
+    minNumberInput.value = minValue.toFixed(1);
+  });
+
+  maxValueInput.addEventListener('input', () => {
+    minValue = parseFloat(minValueInput.value);
+    maxValue = parseFloat(maxValueInput.value);
+    if (maxValue <= minValue) {
+      maxValue = minValue + 0.1;
+    }
+    maxValue = Math.max(maxValueInput.min, Math.min(maxValue, maxValueInput.max));
+    maxValueInput.value = maxValue.toFixed(1);
+    maxNumberInput.value = maxValue.toFixed(1);
+  });
+
+  minNumberInput.addEventListener('input', () => {
+    minValue = parseFloat(minNumberInput.value);
+    if (minValue >= maxValue) {
+      minValue = maxValue - 0.1;
+    }
+    minValue = Math.max(minValueInput.min, Math.min(minValue, minValueInput.max));
+    minValueInput.value = minValue.toFixed(1);
+    minNumberInput.value = minValue.toFixed(1);
+  });
+
+  maxNumberInput.addEventListener('input', () => {
+    maxValue = parseFloat(maxNumberInput.value);
+    if (maxValue <= minValue) {
+      maxValue = minValue + 0.1;
+    }
+    maxValue = Math.max(maxValueInput.min, Math.min(maxValue, maxValueInput.max));
+    maxValueInput.value = maxValue.toFixed(1);
+    maxNumberInput.value = maxValue.toFixed(1);
+  });
+
+  document.getElementById('setThreshold').addEventListener('click', () => {
+    minThreshold = parseFloat(document.getElementById('minthreshold').value);
+    maxThreshold = parseFloat(document.getElementById('maxthreshold').value);
+    audioEnabled = true; 
+    playAudio(); 
+    alert('Thresholds set successfully! Audio alerts are now enabled.');
+  });
+}
 
     function playAudio() {
       if (audioEnabled) {
