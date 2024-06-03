@@ -8,8 +8,10 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
   <link href='https://fonts.googleapis.com/css?family=Radio Canada Big' rel='stylesheet'>
+  <link rel="icon" type="image/png" href="tempicon.png"    sizes="64x64" >
 </head>
 <body>
+  <img src="tempphoto.png" alt="icon" class="tempphoto">
   <div class="container" id="container">
     <h1>Temperature Readings</h1>
     <div class="reading">
@@ -18,8 +20,8 @@
         <span id="temperaturereading">00.00°C</span>
       </div>
       <div class="humidity">
-        <span><strong>Humidity:</strong></span>
-        <span id="humidityreading">00%</span>
+        <span><strong>Humidity:  </strong></span>
+        <span   id="humidityreading">00%</span>
       </div>
       <div class="time">
         <strong>Time:</strong>
@@ -28,13 +30,15 @@
     </div>
   </div>
   <h1 class="graphtitle">Temperature vs Time Graph</h1>
-  <div class="avgTmp">Average Temperature:  </div>
-  <div class="hide">Average of 50 temperature Readings.</div>
+  <div class="avgTmp">Average Temperature:  
+    <span class="tooltip">Average of 50 Temperature Readings</span>
+  </div>
   <p class="avgTemp" id="avgTemperatureReading">00.00°C</p>
-  <div class="avgHmd">Average Humidity:  </div>
-  <div class="hide2">Average of 50 humidity Readings.</div>
-  <p class = "avgHmd" id = "avgHumidityReading">00%</p>
-  <h3 id="thresholdnotifs">Set Thresholds For Notifications</h3>
+  <div class="avgHmd">Average Humidity:
+    <span class="tooltip2">Average of 50 Humidity Readings</span>
+  </div>
+  <p class = "avgHumd" id = "avgHumidityReading">00%</p>
+  <h3 class = "notiftext"id="thresholdnotifs">Set Thresholds For Temperature Notifications</h3>
   <div class="threshold-input">
     <label for="minthreshold">Minimum Temperature (°C):</label>
     <input type="range" id="minthreshold" min="-25" max="49.9" step="0.1">
@@ -46,6 +50,8 @@
     <!-- <span id = "maxSymbol">C</span> -->
     <button id="setThreshold">Set Threshold</button>
   </div>
+
+  <h3 class = "threstext"id="threstext">TempCheck will notify you once the temperature has reached your desired threshold</h3>
 
   <canvas class="graphcontainer" id="temperatureChart"></canvas>
   <canvas class="graphcontainer" id="humidityChart" style="display: none;"></canvas>
@@ -62,4 +68,3 @@
   <script src="script.js" defer></script>
 </body>
 </html>
-
