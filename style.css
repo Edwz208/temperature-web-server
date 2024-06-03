@@ -129,9 +129,9 @@ background-color: rgb(177, 98, 8);}
   font-family: "Radio Canada Big";
   display: block;
   color: rgb(177, 98, 8);;
-  
   margin-left: 50vh;
 }
+
 
 .hide2 {
   display: none;
@@ -153,4 +153,22 @@ background-color: rgb(177, 98, 8);}
   width: 50vh;
   }
 
- 
+  input[type=number] {
+    background: transparent; 
+    border: none; 
+    outline: none; 
+}
+  input[type=number],#minSymbol,#maxSymbol{
+  width: 6vh; 
+  font-family: "Radio Canada Big"; 
+  font-size: 1.9vh;
+}
+#test {
+    margin-left: -17vh;
+}
+
+#setThreshold {
+  background-color: white;
+  font-family: "Radio Canada Big";
+  font-size: 1.5vh;
+}
