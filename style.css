@@ -35,6 +35,7 @@ h1, .graphtitle {
   height: 16.5vh;
   border: 2px solid black;
   margin: 0 auto;
+  margin-top: -15.75vh;
 }
 
 .graphcontainer {
@@ -42,11 +43,12 @@ h1, .graphtitle {
   height: 70vh;
   margin-left: 105vh; /* Adjust this value to bring the chart more to the right */
   background-color: rgb(239, 245, 245);
+  margin-top: -37.80vh;
 }
 
 .graphtitle {
   border-bottom: 2px solid #151414;
-  margin-top: 10.5vh;
+  margin-top: 20vh;
   max-width: 80vh;
   width: 100%;
   margin-left: 105vh;
@@ -56,9 +58,9 @@ h1, .graphtitle {
   display: flex;
   justify-content: space-around;
 }
-
-#humidityreading, #temperaturereading, #time{
+ #temperaturereading{
   color: red;
+  font-weight: bold;
   
 }
 
@@ -96,7 +98,7 @@ h1, .graphtitle {
 }
 
 .humidB:hover {opacity: 1;
-background-color: rgb(177, 98, 8);}
+background-color: rgb(0, 0, 255);}
 
 
 .b {
@@ -107,35 +109,77 @@ background-color: rgb(177, 98, 8);}
 
 .avgTmp {
   font-size: 28px;
-}
-.avgTmp:hover + .hide {
   font-family: "Radio Canada Big";
-  display: block;
-  color: rgb(151, 37, 22);
 }
 
-.hide {
-  display: none;
+.avgTmp .tooltip {
+  visibility: hidden;
+  width: 330px;
+  height: 34px;
+  background-color: rgb(43, 43, 43);
+  color: #fff;
+  border: 2.75px solid rgb(216, 91, 69);
+  border-radius: 6px;
+  padding: 5px 0;
+  margin-left: -30vh;
+  margin-top: -4vh;
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+  word-spacing: 2px;
+  text-indent: 5px;
+}
+
+
+.avgTmp:hover .tooltip{
+  visibility: visible;
+}
+
+.tooltip {
+  font-size: 18px;
+  font-family: "Radio Canada Big";
+}
 
   
-}
 
 .avgHmd {
   font-size: 28px;
-  margin-top: -4vh;
-  margin-left: 50vh;
-}
-.avgHmd:hover + .hide2 {
+  margin-top: -6.2vh;
+  margin-left: 55vh;
   font-family: "Radio Canada Big";
-  display: block;
-  color: rgb(177, 98, 8);;
-  margin-left: 50vh;
+}
+
+.avgHmd .tooltip2 {
+  visibility: hidden;
+  width: 330px;
+  height: 34px;
+  background-color: rgb(43, 43, 43);
+  color: #fff;
+  border: 3px solid rgb(39, 122, 230);
+  border-radius: 6px;
+  padding: 5px 0;
+  margin-left: -25vh;
+  margin-top: -4vh;
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+  word-spacing: 2px;
+  text-indent: 5px;
 }
 
 
-.hide2 {
-  display: none;
+.avgHmd:hover .tooltip2{
+  visibility: visible;
 }
+
+.tooltip2 {
+  font-size: 18px;
+  font-family: "Radio Canada Big";
+  margin-top: -2vh;
+}
+
+
+
 
 .inputBox {
   position: absolute;
@@ -171,4 +215,73 @@ background-color: rgb(177, 98, 8);}
   background-color: white;
   font-family: "Radio Canada Big";
   font-size: 1.5vh;
+}
+
+.avgHumd  {
+  margin-left: 83.55vh;
+  margin-top: -3.75vh;
+  font-size: 24px;
+  color: rgb(0, 0, 255);
+  font-family: 'Radio Canada Big';
+  font-weight: bold;
+}
+
+.avgTemp {
+  margin-left: 33.5vh;
+  margin-top: -3.6vh;
+  font-size: 24px;
+  color: rgb(255, 0, 0);
+  font-family: 'Radio Canada Big';
+  font-weight: bold;
+
+}
+
+#humidityreading {
+  color: rgb(0, 0, 255);
+  left: -2.55vh;
+  font-weight: bold;
+
+}
+
+#time {
+  color: rgb(27, 24, 29);
+  font-weight: bold;
+}
+
+.tempphoto {
+  border-radius: 10px;
+}
+
+#thresholdnotifs {
+  margin-top: 20vh;
+}
+
+.notiftext {
+  margin-left: 25vh;
+}
+
+#setThreshold {
+  background-color: rgb(14, 14, 14); 
+  border: solid;
+  color: white;
+  padding: 8px 25px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  opacity: 0.86;
+  transition: background-color 0.3s, opacity 0.3s, border-color 0.3s;
+  border-radius: 8px;
+  border-color: rgb(138, 68, 2);
+  margin-left: -2vh;
+}
+
+#setThreshold:hover {
+  background-color: rgb(29, 88, 29); /* Change background color on hover */
+  opacity: 1; /* Change opacity on hover */
+  border-color: rgb(7, 7, 7); /* Change border color on hover */
+}
+
+#threstext {
+  margin-left: 7.5vh;
 }
