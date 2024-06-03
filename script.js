@@ -71,45 +71,45 @@ function initializeCharts() {
 let readingCounter = 0;
 
 function fetchData() {
-fetch('/data')
-.then(response => response.json())
-.then(data => {
-  console.log("Data fetched:", data); 
-  let roundedTemp = parseFloat(data.temperature).toFixed(2);
-  let roundedAvgHum = parseFloat(data.avgHum).toFixed(2);
-  let roundedAvgTemp = parseFloat(data.avgTemp).toFixed(2);
-  document.getElementById('temperaturereading').textContent = roundedTemp + '°C';
-  document.getElementById('humidityreading').textContent = data.humidity + '%';
-  document.getElementById('avgTemperatureReading').textContent = roundedAvgTemp + '°C';
-  document.getElementById('avgHumidityReading').textContent = roundedAvgHum + '%';
-  document.getElementById('time').textContent = data.time;
-  
-  readingCounter++;
+  fetch('/data')
+    .then(response => response.json())
+    .then(data => {
+      console.log("Data fetched:", data); 
+      let roundedTemp = parseFloat(data.temperature).toFixed(2);
+      let roundedAvgHum = parseFloat(data.avgHum).toFixed(2);
+      let roundedAvgTemp = parseFloat(data.avgTemp).toFixed(2);
+      document.getElementById('temperaturereading').textContent = roundedTemp + '°C';
+      document.getElementById('humidityreading').textContent = data.humidity + '%';
+      document.getElementById('avgTemperatureReading').textContent = roundedAvgTemp + '°C';
+      document.getElementById('avgHumidityReading').textContent = roundedAvgHum + '%';
+      document.getElementById('time').textContent = data.time;
+      
+      readingCounter++;
 
-  if (readingCounter >= 5) {
-    if (roundedTemp > maxThreshold || roundedTemp < minThreshold) {
-      alert('Temperature threshold exceeded!');
-      if (audioEnabled) {
-        console.log("Audio playing...");
-        document.getElementById('audioClip').play();
+      if (readingCounter >= 5) {
+        if (roundedTemp > maxThreshold || roundedTemp < minThreshold) {
+          alert('Temperature threshold exceeded!');
+          if (audioEnabled) {
+            console.log("Audio playing...");
+            document.getElementById('audioClip').play();
+          }
+        }
+        readingCounter = 0;
       }
-    }
-    readingCounter = 0;
-  }
 
-  const timeParts = data.time.split(':');
-  const time = new Date();
-  time.setHours(parseInt(timeParts[0]));
-  time.setMinutes(parseInt(timeParts[1]));
-  time.setSeconds(parseInt(timeParts[2]));
+      const timeParts = data.time.split(':');
+      const time = new Date();
+      time.setHours(parseInt(timeParts[0]));
+      time.setMinutes(parseInt(timeParts[1]));
+      time.setSeconds(parseInt(timeParts[2]));
 
-  if (currentChart === 'temperature') {
-    updateChart(temperatureChart, time, roundedTemp);
-  } else {
-    updateChart(humidityChart, time, data.humidity);
-  }
-})
-.catch(error => console.error('Error fetching data:', error));
+      if (currentChart === 'temperature') {
+        updateChart(temperatureChart, time, roundedTemp);
+      } else {
+        updateChart(humidityChart, time, data.humidity);
+      }
+    })
+    .catch(error => console.error('Error fetching data:', error));
 }
 
 function updateChart(chart, time, value) {
