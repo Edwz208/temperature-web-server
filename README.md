@@ -1,6 +1,6 @@
 Edwin Zeng and Jeevan Sanchez
 Temperature web server project
-Displays 
+Uses esp32 web server to display temperature and humidity data from a DHT sensor with features such as graphs, statistics, and threshold alerts
 
 download and use arduino legacy
 Place the ding, html, css, and js file in a folder called data
