@@ -1,4 +1,4 @@
-# temperature-web-server
+Edwin Zeng and Jeevan Sanchez
 Temperature web server project
 Displays 
 
