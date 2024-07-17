@@ -1,7 +1,5 @@
+# Temperature web server project
 Edwin Zeng and Jeevan Sanchez
-
-Temperature web server project
-
 
 Uses an esp32 web server to display temperature and humidity data from a DHT sensor with features such as graphs, statistics, and threshold alerts.
 
